@@ -8,33 +8,45 @@ Usage:
 """
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service import workspace
-import getpass
+from databricks.sdk.errors import ResourceAlreadyExists
+import os
 
 w = WorkspaceClient()
 
-w.secrets.create_scope(scope="massive")
+MASSIVE_API_KEY = dbutils.widgets.get("MASSIVE_API_KEY")
+LAKEBASE_URL = dbutils.widgets.get("LAKEBASE_URL")
+
+try:
+    w.secrets.create_scope(scope="rajeshmassive")
+except ResourceAlreadyExists:
+    pass
+
 w.secrets.put_secret(
-    scope="massive",
+    scope="rajeshmassive",
     key="api-key",
-    string_value=getpass.getpass("Paste your Massive API key: ")
+    string_value=MASSIVE_API_KEY
 )
 
-w.secrets.create_scope(scope="database")
+try:
+    w.secrets.create_scope(scope="rajeshdatabase")
+except ResourceAlreadyExists:
+    pass
+
 w.secrets.put_secret(
-    scope="database",
+    scope="rajeshdatabase",
     key="lakebase-url",
-    string_value=getpass.getpass("Paste your Lakebase URL: ")
+    string_value=LAKEBASE_URL
 )
 
 
 w.secrets.put_acl(
-    scope="database",
+    scope="rajeshdatabase",
     principal="users",
     permission=workspace.AclPermission.READ,
 )
 
 w.secrets.put_acl(
-    scope="massive",
+    scope="rajeshmassive",
     principal="users",
     permission=workspace.AclPermission.READ,
 )
